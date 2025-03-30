@@ -21,10 +21,13 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.molkkyscoreboard.R
+import com.example.molkkyscoreboard.data.Member
+import com.example.molkkyscoreboard.data.Team
 import com.example.molkkyscoreboard.ui.theme.MolkkyScoreBoardTheme
 
 @Composable
 fun ResultScreen(
+    winner: Team,
     onNextButtonClicked: (Int) -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -50,7 +53,7 @@ fun ResultScreen(
             )
             Spacer(modifier = Modifier.height(dimensionResource(R.dimen.padding_medium)))
             Text(
-                "Team B の勝利です",
+                "${winner.name} の勝利です",
                 style = MaterialTheme.typography.bodyLarge,
             )
             Spacer(modifier = Modifier.height(dimensionResource(R.dimen.padding_small)))
@@ -88,6 +91,7 @@ fun EndButton(
 fun ResultPreview() {
     MolkkyScoreBoardTheme {
         ResultScreen(
+            winner = Team("Team B", listOf(Member("Player B"))),
             onNextButtonClicked = {},
             modifier = Modifier.fillMaxWidth(),
         )

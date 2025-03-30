@@ -170,6 +170,7 @@ fun ScoreBoardApp(
             }
             composable(route = ScoreBoardScreen.Result.name) {
                 ResultScreen(
+                    winner = uiState.winner,
                     onNextButtonClicked = {
                         navController.navigate(ScoreBoardScreen.Start.name)
                     },
