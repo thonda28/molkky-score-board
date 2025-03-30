@@ -1,6 +1,8 @@
 <resources>
     <string name="app_name">Mölkky Score Board</string>
     <string name="game_start">Game Start</string>
+    <string name="team_name">Team Name</string>
+    <string name="add_team">Add Team</string>
     <string name="register_team">Register Team</string>
     <string name="register_member">Register Member</string>
     <string name="board">Board</string>

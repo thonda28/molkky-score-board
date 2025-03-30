@@ -11,8 +11,13 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.dimensionResource
@@ -21,10 +26,13 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.molkkyscoreboard.R
+import com.example.molkkyscoreboard.data.Team
 import com.example.molkkyscoreboard.ui.theme.MolkkyScoreBoardTheme
 
 @Composable
 fun TeamScreen(
+    teams: List<Team>,
+    onTeamNameEntered: (String) -> Unit,
     onNextButtonClicked: (Int) -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -49,10 +57,15 @@ fun TeamScreen(
                 style = MaterialTheme.typography.headlineSmall,
             )
             Spacer(modifier = Modifier.height(dimensionResource(R.dimen.padding_medium)))
-            // 3つのチーム名を表示
-            Text("Team A", style = MaterialTheme.typography.bodyLarge)
-            Text("Team B", style = MaterialTheme.typography.bodyLarge)
-            Text("Team C", style = MaterialTheme.typography.bodyLarge)
+            teams.forEach { team ->
+                Text(team.name, style = MaterialTheme.typography.bodyLarge)
+            }
+            Spacer(modifier = Modifier.height(dimensionResource(R.dimen.padding_medium)))
+            TeamForm(
+                labelResourceId = R.string.add_team,
+                onTeamNameEntered = onTeamNameEntered,
+                modifier = Modifier.fillMaxWidth(),
+            )
             Spacer(modifier = Modifier.height(dimensionResource(R.dimen.padding_small)))
         }
         Column(
@@ -66,6 +79,32 @@ fun TeamScreen(
                 modifier = Modifier.fillMaxWidth(),
             )
         }
+    }
+}
+
+@Composable
+fun TeamForm(
+    @StringRes labelResourceId: Int,
+    onTeamNameEntered: (String) -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    var teamName by remember { mutableStateOf("") }
+
+    OutlinedTextField(
+        value = teamName,
+        onValueChange = { teamName = it },
+        label = { Text(stringResource(R.string.team_name)) },
+        modifier = modifier.widthIn(min = 250.dp),
+    )
+
+    Button(
+        onClick = {
+            onTeamNameEntered(teamName)
+            teamName = ""
+        },
+        modifier = modifier.widthIn(min = 250.dp),
+    ) {
+        Text(stringResource(labelResourceId))
     }
 }
 
@@ -88,6 +127,12 @@ fun RegisterTeamButton(
 fun TeamPreview() {
     MolkkyScoreBoardTheme {
         TeamScreen(
+            teams = listOf(
+                Team("Team A", emptyList()),
+                Team("Team B", emptyList()),
+                Team("Team C", emptyList()),
+            ),
+            onTeamNameEntered = {},
             onNextButtonClicked = {},
             modifier = Modifier.fillMaxWidth(),
         )

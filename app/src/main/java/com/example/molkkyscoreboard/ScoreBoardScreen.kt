@@ -16,17 +16,20 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.example.molkkyscoreboard.ui.BoardScreen
+import com.example.molkkyscoreboard.ui.GameViewModel
 import com.example.molkkyscoreboard.ui.MemberScreen
 import com.example.molkkyscoreboard.ui.ResultScreen
 import com.example.molkkyscoreboard.ui.StartScreen
@@ -73,7 +76,7 @@ fun ScoreBoardAppBar(
 @Preview
 @Composable
 fun ScoreBoardApp(
-//    viewModel: OrderViewModel = viewModel(),
+    viewModel: GameViewModel = viewModel(),
     navController: NavHostController = rememberNavController(),
 ) {
     // Get current back stack entry
@@ -93,7 +96,7 @@ fun ScoreBoardApp(
             )
         },
     ) { innerPadding ->
-//        val uiState by viewModel.uiState.collectAsState()
+        val uiState by viewModel.uiState.collectAsState()
 
         NavHost(
             navController = navController,
@@ -119,6 +122,8 @@ fun ScoreBoardApp(
             }
             composable(route = ScoreBoardScreen.Team.name) {
                 TeamScreen(
+                    teams = uiState.teams,
+                    onTeamNameEntered = { teamName -> viewModel.addTeam(teamName) },
                     onNextButtonClicked = {
                         navController.navigate(ScoreBoardScreen.Member.name)
                     },
