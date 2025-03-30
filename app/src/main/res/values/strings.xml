@@ -4,6 +4,8 @@
     <string name="team_name">Team Name</string>
     <string name="add_team">Add Team</string>
     <string name="register_team">Register Team</string>
+    <string name="member_name">Member Name</string>
+    <string name="add_member">Add Member</string>
     <string name="register_member">Register Member</string>
     <string name="board">Board</string>
     <string name="result">Result</string>

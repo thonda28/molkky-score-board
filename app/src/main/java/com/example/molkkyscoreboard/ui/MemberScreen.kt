@@ -11,8 +11,13 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.dimensionResource
@@ -21,10 +26,14 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.molkkyscoreboard.R
+import com.example.molkkyscoreboard.data.Member
+import com.example.molkkyscoreboard.data.Team
 import com.example.molkkyscoreboard.ui.theme.MolkkyScoreBoardTheme
 
 @Composable
 fun MemberScreen(
+    teams: List<Team>,
+    onMemberNameEntered: (String, String) -> Unit,
     onNextButtonClicked: (Int) -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -49,19 +58,19 @@ fun MemberScreen(
                 style = MaterialTheme.typography.headlineSmall,
             )
             Spacer(modifier = Modifier.height(dimensionResource(R.dimen.padding_medium)))
-            // 3つのチーム名を表示
-            // 3つのチーム名とメンバー名を表示
-            Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                Text("Team A", style = MaterialTheme.typography.bodyLarge)
-                Text("Member A", style = MaterialTheme.typography.bodyMedium)
-            }
-            Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                Text("Team B", style = MaterialTheme.typography.bodyLarge)
-                Text("Member B", style = MaterialTheme.typography.bodyMedium)
-            }
-            Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                Text("Team C", style = MaterialTheme.typography.bodyLarge)
-                Text("Member C", style = MaterialTheme.typography.bodyMedium)
+            teams.forEach { team ->
+                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                    Text(team.name, style = MaterialTheme.typography.bodyLarge)
+                    team.members.forEach { member ->
+                        Text(member.name, style = MaterialTheme.typography.bodyMedium)
+                    }
+                    MemberForm(
+                        labelResourceId = R.string.register_member,
+                        tableName = team.name,
+                        onMemberNameEntered = onMemberNameEntered,
+                        modifier = Modifier.fillMaxWidth(),
+                    )
+                }
             }
             Spacer(modifier = Modifier.height(dimensionResource(R.dimen.padding_small)))
         }
@@ -76,6 +85,33 @@ fun MemberScreen(
                 modifier = Modifier.fillMaxWidth(),
             )
         }
+    }
+}
+
+@Composable
+fun MemberForm(
+    @StringRes labelResourceId: Int,
+    tableName: String,
+    onMemberNameEntered: (String, String) -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    var memberName by remember { mutableStateOf("") }
+
+    OutlinedTextField(
+        value = memberName,
+        onValueChange = { memberName = it },
+        label = { Text(stringResource(R.string.member_name)) },
+        modifier = modifier.widthIn(min = 250.dp),
+    )
+
+    Button(
+        onClick = {
+            onMemberNameEntered(tableName, memberName)
+            memberName = ""
+        },
+        modifier = modifier.widthIn(min = 250.dp),
+    ) {
+        Text(stringResource(labelResourceId))
     }
 }
 
@@ -98,6 +134,12 @@ fun RegisterMemberButton(
 fun MemberPreview() {
     MolkkyScoreBoardTheme {
         MemberScreen(
+            teams = listOf(
+                Team("Team A", listOf(Member("Player A"))),
+                Team("Team B", listOf(Member("Player B"))),
+                Team("Team C", listOf(Member("Player C"))),
+            ),
+            onMemberNameEntered = { _, _ -> },
             onNextButtonClicked = {},
             modifier = Modifier.fillMaxWidth(),
         )
