@@ -29,6 +29,9 @@ import com.example.molkkyscoreboard.R
 import com.example.molkkyscoreboard.data.Team
 import com.example.molkkyscoreboard.ui.theme.MolkkyScoreBoardTheme
 
+const val MIN_TEAM_COUNT = 2
+const val MAX_TEAM_COUNT = 4
+
 @Composable
 fun TeamScreen(
     teams: List<Team>,
@@ -62,6 +65,7 @@ fun TeamScreen(
             }
             Spacer(modifier = Modifier.height(dimensionResource(R.dimen.padding_medium)))
             TeamForm(
+                teams = teams,
                 labelResourceId = R.string.add_team,
                 onTeamNameEntered = onTeamNameEntered,
                 modifier = Modifier.fillMaxWidth(),
@@ -74,6 +78,7 @@ fun TeamScreen(
             verticalArrangement = Arrangement.spacedBy(dimensionResource(id = R.dimen.padding_medium)),
         ) {
             RegisterTeamButton(
+                teams = teams,
                 labelResourceId = R.string.register_team,
                 onClick = { onNextButtonClicked(0) },
                 modifier = Modifier.fillMaxWidth(),
@@ -84,16 +89,21 @@ fun TeamScreen(
 
 @Composable
 fun TeamForm(
+    teams: List<Team>,
     @StringRes labelResourceId: Int,
     onTeamNameEntered: (String) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     var teamName by remember { mutableStateOf("") }
 
+    if (!addTeamEnabled(teams)) {
+        return
+    }
     OutlinedTextField(
         value = teamName,
         onValueChange = { teamName = it },
         label = { Text(stringResource(R.string.team_name)) },
+        enabled = addTeamEnabled(teams),
         modifier = modifier.widthIn(min = 250.dp),
     )
 
@@ -108,18 +118,28 @@ fun TeamForm(
     }
 }
 
+private fun addTeamEnabled(teams: List<Team>): Boolean {
+    return teams.size < MAX_TEAM_COUNT
+}
+
 @Composable
 fun RegisterTeamButton(
+    teams: List<Team>,
     @StringRes labelResourceId: Int,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     Button(
         onClick = onClick,
+        enabled = registerTeamButtonEnabled(teams),
         modifier = modifier.widthIn(min = 250.dp),
     ) {
         Text(stringResource(labelResourceId))
     }
+}
+
+private fun registerTeamButtonEnabled(teams: List<Team>): Boolean {
+    return teams.size in MIN_TEAM_COUNT..MAX_TEAM_COUNT
 }
 
 @Preview
@@ -128,9 +148,9 @@ fun TeamPreview() {
     MolkkyScoreBoardTheme {
         TeamScreen(
             teams = listOf(
-                Team("Team A", emptyList()),
-                Team("Team B", emptyList()),
-                Team("Team C", emptyList()),
+                Team(name = "Team A", members = emptyList()),
+                Team(name = "Team B", members = emptyList()),
+                Team(name = "Team C", members = emptyList()),
             ),
             onTeamNameEntered = {},
             onNextButtonClicked = {},

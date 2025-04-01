@@ -22,10 +22,18 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.molkkyscoreboard.R
+import com.example.molkkyscoreboard.data.GameUiState
+import com.example.molkkyscoreboard.data.Member
+import com.example.molkkyscoreboard.data.Team
+import com.example.molkkyscoreboard.ui.components.NumberInputButtons
 import com.example.molkkyscoreboard.ui.theme.MolkkyScoreBoardTheme
+
+const val TABLE_COLUMN_COUNT = 3
 
 @Composable
 fun BoardScreen(
+    uiState: GameUiState,
+    addScoreEntered: (String, Int) -> Unit,
     onNextButtonClicked: (Int) -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -33,6 +41,9 @@ fun BoardScreen(
         modifier = modifier,
         verticalArrangement = Arrangement.SpaceBetween,
     ) {
+        val currentTeam = uiState.teams[uiState.nextTeamIndex]
+        val currentMember = currentTeam.members[currentTeam.nextPlayerIndex]
+
         Column(
             modifier = Modifier.fillMaxWidth(),
             horizontalAlignment = Alignment.CenterHorizontally,
@@ -51,12 +62,19 @@ fun BoardScreen(
             )
             Spacer(modifier = Modifier.height(dimensionResource(R.dimen.padding_medium)))
             Text(
-                "次の Player は Member A です",
+                "次の Player は ${currentMember.name} です",
                 style = MaterialTheme.typography.bodyLarge,
             )
             Spacer(modifier = Modifier.height(dimensionResource(R.dimen.padding_medium)))
+            // 得点を入力する
+            NumberInputButtons(
+                currentTeam,
+                onNumberClick = addScoreEntered,
+                modifier = Modifier.widthIn(min = 250.dp)
+            )
+            Spacer(modifier = Modifier.height(dimensionResource(R.dimen.padding_medium)))
             // スコアボードの表を表示
-            ScoreBoard()
+            ScoreBoard(uiState)
             Spacer(modifier = Modifier.height(dimensionResource(R.dimen.padding_small)))
         }
         Column(
@@ -65,6 +83,7 @@ fun BoardScreen(
             verticalArrangement = Arrangement.spacedBy(dimensionResource(id = R.dimen.padding_medium)),
         ) {
             ResultButton(
+                winner = uiState.winner,
                 labelResourceId = R.string.result,
                 onClick = { onNextButtonClicked(0) },
                 modifier = Modifier.fillMaxWidth(),
@@ -74,45 +93,57 @@ fun BoardScreen(
 }
 
 @Composable
-fun ScoreBoard() {
+fun ScoreBoard(uiState: GameUiState) {
     Column {
         // ヘッダ行
+        val currentAttempt = uiState.attempt
         Row {
             Text(" ", modifier = Modifier.weight(1f))
-            Text("7", modifier = Modifier.weight(1f))
-            Text("8", modifier = Modifier.weight(1f))
-            Text("9", modifier = Modifier.weight(1f))
+            if (currentAttempt < TABLE_COLUMN_COUNT) {
+                for (i in 1..TABLE_COLUMN_COUNT) {
+                    Text("$i", modifier = Modifier.weight(1f))
+                }
+            } else {
+                for (i in 1..TABLE_COLUMN_COUNT) {
+                    Text(
+                        "${currentAttempt - TABLE_COLUMN_COUNT + i}",
+                        modifier = Modifier.weight(1f)
+                    )
+                }
+            }
         }
         // 各チームの行
-        Row {
-            Text("Team A", modifier = Modifier.weight(1f))
-            Text("30", modifier = Modifier.weight(1f))
-            Text("40", modifier = Modifier.weight(1f))
-            Text("40", modifier = Modifier.weight(1f))
-        }
-        Row {
-            Text("Team B", modifier = Modifier.weight(1f))
-            Text("35", modifier = Modifier.weight(1f))
-            Text("45", modifier = Modifier.weight(1f))
-            Text("50", modifier = Modifier.weight(1f))
-        }
-        Row {
-            Text("Team C", modifier = Modifier.weight(1f))
-            Text("22", modifier = Modifier.weight(1f))
-            Text("32", modifier = Modifier.weight(1f))
-            Text("", modifier = Modifier.weight(1f))
+        uiState.teams.forEach { team ->
+            Row {
+                Text(team.name, modifier = Modifier.weight(1f))
+                var rangeStart = 0
+                var rangeEnd = TABLE_COLUMN_COUNT
+                if (currentAttempt > TABLE_COLUMN_COUNT) {
+                    rangeStart = currentAttempt - TABLE_COLUMN_COUNT
+                    rangeEnd = currentAttempt
+                }
+                // スコアが少ない場合は、空白を表示する
+                for (i in rangeStart until rangeEnd) {
+                    Text(
+                        if (team.scores.size > i) team.scores[i].toString() else "",
+                        modifier = Modifier.weight(1f)
+                    )
+                }
+            }
         }
     }
 }
 
 @Composable
 fun ResultButton(
+    winner: Team?,
     @StringRes labelResourceId: Int,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     Button(
         onClick = onClick,
+        enabled = winner != null,
         modifier = modifier.widthIn(min = 250.dp),
     ) {
         Text(stringResource(labelResourceId))
@@ -124,6 +155,28 @@ fun ResultButton(
 fun BoardPreview() {
     MolkkyScoreBoardTheme {
         BoardScreen(
+            uiState = GameUiState(
+                teams = listOf(
+                    Team(
+                        name = "Team A",
+                        members = listOf(Member(name = "Player A")),
+                        scores = listOf(5, 10, 18, 23, 29),
+                    ),
+                    Team(
+                        name = "Team B",
+                        members = listOf(Member(name = "Player B")),
+                        scores = listOf(6, 10, 12, 18),
+                    ),
+                    Team(
+                        name = "Team C",
+                        members = listOf(Member(name = "Player C")),
+                        scores = listOf(7, 8, 8, 20),
+                    ),
+                ),
+                attempt = 5,
+                nextTeamIndex = 1,
+            ),
+            addScoreEntered = { _, _ -> },
             onNextButtonClicked = {},
             modifier = Modifier.fillMaxWidth(),
         )

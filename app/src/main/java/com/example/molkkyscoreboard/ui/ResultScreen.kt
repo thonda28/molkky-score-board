@@ -27,7 +27,7 @@ import com.example.molkkyscoreboard.ui.theme.MolkkyScoreBoardTheme
 
 @Composable
 fun ResultScreen(
-    winner: Team,
+    winner: Team?,
     onNextButtonClicked: (Int) -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -51,11 +51,13 @@ fun ResultScreen(
                 stringResource(R.string.result),
                 style = MaterialTheme.typography.headlineSmall,
             )
-            Spacer(modifier = Modifier.height(dimensionResource(R.dimen.padding_medium)))
-            Text(
-                "${winner.name} の勝利です",
-                style = MaterialTheme.typography.bodyLarge,
-            )
+            if (winner != null) {
+                Spacer(modifier = Modifier.height(dimensionResource(R.dimen.padding_medium)))
+                Text(
+                    "${winner.name} の勝利です",
+                    style = MaterialTheme.typography.bodyLarge,
+                )
+            }
             Spacer(modifier = Modifier.height(dimensionResource(R.dimen.padding_small)))
         }
         Column(
@@ -91,7 +93,7 @@ fun EndButton(
 fun ResultPreview() {
     MolkkyScoreBoardTheme {
         ResultScreen(
-            winner = Team("Team B", listOf(Member("Player B"))),
+            winner = Team(name = "Team B", members = listOf(Member(name = "Player B"))),
             onNextButtonClicked = {},
             modifier = Modifier.fillMaxWidth(),
         )

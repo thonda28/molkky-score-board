@@ -30,6 +30,9 @@ import com.example.molkkyscoreboard.data.Member
 import com.example.molkkyscoreboard.data.Team
 import com.example.molkkyscoreboard.ui.theme.MolkkyScoreBoardTheme
 
+const val MIN_MEMBER_COUNT = 1
+const val MAX_MEMBER_COUNT = 6
+
 @Composable
 fun MemberScreen(
     teams: List<Team>,
@@ -65,8 +68,8 @@ fun MemberScreen(
                         Text(member.name, style = MaterialTheme.typography.bodyMedium)
                     }
                     MemberForm(
+                        team = team,
                         labelResourceId = R.string.register_member,
-                        tableName = team.name,
                         onMemberNameEntered = onMemberNameEntered,
                         modifier = Modifier.fillMaxWidth(),
                     )
@@ -80,6 +83,7 @@ fun MemberScreen(
             verticalArrangement = Arrangement.spacedBy(dimensionResource(id = R.dimen.padding_medium)),
         ) {
             RegisterMemberButton(
+                teams = teams,
                 labelResourceId = R.string.register_member,
                 onClick = { onNextButtonClicked(0) },
                 modifier = Modifier.fillMaxWidth(),
@@ -90,12 +94,16 @@ fun MemberScreen(
 
 @Composable
 fun MemberForm(
+    team: Team,
     @StringRes labelResourceId: Int,
-    tableName: String,
     onMemberNameEntered: (String, String) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     var memberName by remember { mutableStateOf("") }
+
+    if (!addMemberEnabled(team)) {
+        return
+    }
 
     OutlinedTextField(
         value = memberName,
@@ -106,7 +114,7 @@ fun MemberForm(
 
     Button(
         onClick = {
-            onMemberNameEntered(tableName, memberName)
+            onMemberNameEntered(team.id, memberName)
             memberName = ""
         },
         modifier = modifier.widthIn(min = 250.dp),
@@ -115,17 +123,29 @@ fun MemberForm(
     }
 }
 
+private fun addMemberEnabled(team: Team): Boolean {
+    return team.members.size < MAX_MEMBER_COUNT
+}
+
 @Composable
 fun RegisterMemberButton(
+    teams: List<Team>,
     @StringRes labelResourceId: Int,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     Button(
         onClick = onClick,
+        enabled = registerMemberButtonEnabled(teams),
         modifier = modifier.widthIn(min = 250.dp),
     ) {
         Text(stringResource(labelResourceId))
+    }
+}
+
+private fun registerMemberButtonEnabled(teams: List<Team>): Boolean {
+    return teams.all { team ->
+        team.members.size in MIN_MEMBER_COUNT..MAX_MEMBER_COUNT
     }
 }
 
@@ -135,9 +155,9 @@ fun MemberPreview() {
     MolkkyScoreBoardTheme {
         MemberScreen(
             teams = listOf(
-                Team("Team A", listOf(Member("Player A"))),
-                Team("Team B", listOf(Member("Player B"))),
-                Team("Team C", listOf(Member("Player C"))),
+                Team(name = "Team A", members = listOf(Member(name = "Player A"))),
+                Team(name = "Team B", members = listOf(Member(name = "Player B"))),
+                Team(name = "Team C", members = listOf(Member(name = "Player C"))),
             ),
             onMemberNameEntered = { _, _ -> },
             onNextButtonClicked = {},

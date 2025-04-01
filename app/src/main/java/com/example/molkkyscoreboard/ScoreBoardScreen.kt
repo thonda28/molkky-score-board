@@ -138,9 +138,9 @@ fun ScoreBoardApp(
             composable(route = ScoreBoardScreen.Member.name) {
                 MemberScreen(
                     teams = uiState.teams,
-                    onMemberNameEntered = { teamName, memberName ->
+                    onMemberNameEntered = { teamId, memberName ->
                         viewModel.addMemberToTeam(
-                            teamName,
+                            teamId,
                             memberName,
                         )
                     },
@@ -157,6 +157,13 @@ fun ScoreBoardApp(
             }
             composable(route = ScoreBoardScreen.Board.name) {
                 BoardScreen(
+                    uiState = uiState,
+                    addScoreEntered = { team, score ->
+                        viewModel.addScoreToTeam(
+                            team,
+                            score,
+                        )
+                    },
                     onNextButtonClicked = {
                         navController.navigate(ScoreBoardScreen.Result.name)
                     },
