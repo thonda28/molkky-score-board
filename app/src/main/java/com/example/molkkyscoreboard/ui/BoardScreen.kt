@@ -69,6 +69,7 @@ fun BoardScreen(
             // 得点を入力する
             NumberInputButtons(
                 currentTeam,
+                numberButtonEnabled = uiState.winner == null,
                 onNumberClick = addScoreEntered,
                 modifier = Modifier.widthIn(min = 250.dp)
             )

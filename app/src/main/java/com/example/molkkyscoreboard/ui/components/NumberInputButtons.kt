@@ -15,9 +15,12 @@ import androidx.compose.ui.unit.dp
 import com.example.molkkyscoreboard.data.Member
 import com.example.molkkyscoreboard.data.Team
 
+const val MAX_NUMBER = 12
+
 @Composable
 fun NumberInputButtons(
     team: Team,
+    numberButtonEnabled: Boolean,
     onNumberClick: (String, Int) -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -32,9 +35,10 @@ fun NumberInputButtons(
             ) {
                 for (j in 1..3) {
                     val number = i * 3 + j
-                    if (number <= 12) {
+                    if (number <= MAX_NUMBER) {
                         Button(
                             onClick = { onNumberClick(team.id, number) },
+                            enabled = numberButtonEnabled,
                             modifier = Modifier
                                 .width(60.dp)
                                 .height(60.dp)
@@ -53,6 +57,7 @@ fun NumberInputButtons(
 fun NumberInputButtonsPreview() {
     NumberInputButtons(
         team = Team(name = "Team A", members = listOf(Member(name = "Member A"))),
+        numberButtonEnabled = true,
         onNumberClick = { team, number -> println("Number clicked: $number") }
     )
 }

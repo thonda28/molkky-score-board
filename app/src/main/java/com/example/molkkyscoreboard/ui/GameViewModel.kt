@@ -9,6 +9,9 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 
+const val WINNING_SCORE = 50
+const val RESET_SCORE = 25
+
 class GameViewModel : ViewModel() {
     private val _uiState = MutableStateFlow(GameUiState())
     val uiState: StateFlow<GameUiState> = _uiState.asStateFlow()
@@ -41,13 +44,27 @@ class GameViewModel : ViewModel() {
 
     fun addScoreToTeam(teamId: String, score: Int) {
         val team = _uiState.value.teams.find { it.id == teamId } ?: return
+        // TODO: 失格のケースを実装
 
         // 最新のスコアに score を足したものを scores に追加する
         _uiState.update { currentState ->
             val lastScore = team.scores.lastOrNull() ?: 0
-            val updatedTeam = team.copy(
-                scores = team.scores + (lastScore + score)
-            )
+            val newScore = lastScore + score
+
+            val updatedTeam = when {
+                newScore == WINNING_SCORE -> {
+                    setWinner(team)
+                    team.copy(scores = team.scores + newScore)
+                }
+
+                newScore > WINNING_SCORE -> {
+                    team.copy(scores = team.scores + RESET_SCORE)
+                }
+
+                else -> {
+                    team.copy(scores = team.scores + newScore)
+                }
+            }
             val updatedTeams = currentState.teams.map {
                 if (it.name == team.name) updatedTeam else it
             }
@@ -58,12 +75,21 @@ class GameViewModel : ViewModel() {
         incrementNextTeamIndex()
     }
 
+    private fun setWinner(teamId: Team) {
+        val team = _uiState.value.teams.find { it.id == teamId.id } ?: return
+
+        _uiState.update { currentState ->
+            currentState.copy(
+                winner = team,
+            )
+        }
+    }
+
     private fun incrementNextPlayerIndex(teamId: String) {
         val team = _uiState.value.teams.find { it.id == teamId } ?: return
 
         _uiState.update { currentState ->
-            val originTeam = currentState.teams.find { it.name == team.name }
-            val updatedTeam = originTeam!!.copy(
+            val updatedTeam = team.copy(
                 nextPlayerIndex = (team.nextPlayerIndex + 1) % team.members.size
             )
             val updatedTeams = currentState.teams.map {
