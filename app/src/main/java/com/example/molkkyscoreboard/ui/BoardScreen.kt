@@ -118,7 +118,11 @@ fun ScoreBoard(uiState: GameUiState) {
         // 各チームの行
         uiState.teams.forEach { team ->
             Row {
-                Text(team.name, modifier = Modifier.weight(1f))
+                Text(team.name,
+                    modifier = Modifier
+                        .weight(1f)
+                        .background(color = selectColor(team.consecutiveFailure))
+                )
                 var rangeStart = 0
                 var rangeEnd = TABLE_COLUMN_COUNT
                 if (currentAttempt > TABLE_COLUMN_COUNT) {
