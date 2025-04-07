@@ -69,7 +69,7 @@ fun MemberScreen(
                     }
                     MemberForm(
                         team = team,
-                        labelResourceId = R.string.register_member,
+                        labelResourceId = R.string.add_member,
                         onMemberNameEntered = onMemberNameEntered,
                         modifier = Modifier.fillMaxWidth(),
                     )
