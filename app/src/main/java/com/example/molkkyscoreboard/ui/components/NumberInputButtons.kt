@@ -16,6 +16,8 @@ import com.example.molkkyscoreboard.data.Member
 import com.example.molkkyscoreboard.data.Team
 
 const val MAX_NUMBER = 12
+const val ROW_NUMBERS = 3
+const val COL_NUMBERS = 4
 
 @Composable
 fun NumberInputButtons(
@@ -29,25 +31,32 @@ fun NumberInputButtons(
         verticalArrangement = Arrangement.spacedBy(8.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        for (i in 0..3) {
+        for (i in 0 until ROW_NUMBERS) {
             Row(
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                for (j in 1..3) {
-                    val number = i * 3 + j
-                    if (number <= MAX_NUMBER) {
-                        Button(
-                            onClick = { onNumberClick(team.id, number) },
-                            enabled = numberButtonEnabled,
-                            modifier = Modifier
-                                .width(60.dp)
-                                .height(60.dp)
-                        ) {
-                            Text(text = number.toString())
-                        }
+                for (j in 0 until COL_NUMBERS) {
+                    val number = i * COL_NUMBERS + j + 1
+                    Button(
+                        onClick = { onNumberClick(team.id, number) },
+                        enabled = numberButtonEnabled,
+                        modifier = Modifier
+                            .width(75.dp)
+                            .height(45.dp)
+                    ) {
+                        Text(text = number.toString())
                     }
                 }
             }
+        }
+        Button(
+            onClick = { onNumberClick(team.id, 0) },
+            enabled = numberButtonEnabled,
+            modifier = Modifier
+                .width(150.dp)
+                .height(45.dp)
+        ) {
+            Text(text = "Miss")
         }
     }
 }
