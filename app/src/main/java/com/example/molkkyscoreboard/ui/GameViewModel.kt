@@ -17,6 +17,10 @@ class GameViewModel : ViewModel() {
     private val _uiState = MutableStateFlow(GameUiState())
     val uiState: StateFlow<GameUiState> = _uiState.asStateFlow()
 
+    fun resetUiState() {
+        _uiState.value = GameUiState()
+    }
+
     fun addTeam(teamName: String) {
         _uiState.update { currentState ->
             currentState.copy(

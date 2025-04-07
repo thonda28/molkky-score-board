@@ -110,6 +110,7 @@ fun ScoreBoardApp(
             composable(route = ScoreBoardScreen.Start.name) {
                 StartScreen(
                     onNextButtonClicked = {
+                        viewModel.resetUiState()
                         navController.navigate(ScoreBoardScreen.Team.name)
                     },
                     modifier =
