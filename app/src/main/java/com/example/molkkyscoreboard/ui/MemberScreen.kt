@@ -51,7 +51,7 @@ fun MemberScreen(
         ) {
             Spacer(modifier = Modifier.height(dimensionResource(R.dimen.padding_medium)))
             Image(
-                painter = painterResource(R.drawable.ic_launcher_foreground),
+                painter = painterResource(R.drawable.sports_molkky_morukku_man),
                 contentDescription = null,
                 modifier = Modifier.width(300.dp),
             )
