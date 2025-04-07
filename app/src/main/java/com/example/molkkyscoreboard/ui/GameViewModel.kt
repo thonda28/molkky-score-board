@@ -9,6 +9,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 
+const val MAX_CONSECUTIVE_FAILURE = 3
 const val WINNING_SCORE = 50
 const val RESET_SCORE = 25
 
@@ -43,45 +44,83 @@ class GameViewModel : ViewModel() {
 
 
     fun addScoreToTeam(teamId: String, score: Int) {
-        val team = _uiState.value.teams.find { it.id == teamId } ?: return
-        // TODO: 失格のケースを実装
+        if (score > 0) {
+            succeed(teamId, score)
+        } else {
+            fail(teamId)
+        }
+
+        // 終了条件を満たしているか確認する
+        // WINNING_SCORE のスコアを持つチームがいる
+        val teams = _uiState.value.teams
+        if (teams.any { it.scores.lastOrNull() == WINNING_SCORE }) {
+            // 勝者が決まった場合、次のチームに移動しない
+            setWinner(teamId)
+            return
+        }
+        // 1チーム以外が失格している
+        if (teams.count { it.isDisqualified } == teams.size - 1) {
+            // 失格していないチームを勝者にする
+            val winner = teams.first { !it.isDisqualified }
+            setWinner(winner.id)
+            return
+        }
 
         // 最新のスコアに score を足したものを scores に追加する
+        incrementNextPlayerIndex(teamId)
+        incrementNextTeamIndex()
+    }
+
+    private fun succeed(teamId: String, score: Int) {
+        val team = _uiState.value.teams.find { it.id == teamId } ?: return
+
         _uiState.update { currentState ->
             val lastScore = team.scores.lastOrNull() ?: 0
             val newScore = lastScore + score
 
             val updatedTeam = when {
-                newScore == WINNING_SCORE -> {
-                    setWinner(team)
-                    team.copy(scores = team.scores + newScore)
-                }
-
                 newScore > WINNING_SCORE -> {
-                    team.copy(scores = team.scores + RESET_SCORE)
+                    team.copy(scores = team.scores + RESET_SCORE, consecutiveFailure = 0)
                 }
 
                 else -> {
-                    team.copy(scores = team.scores + newScore)
+                    team.copy(scores = team.scores + newScore, consecutiveFailure = 0)
                 }
             }
+
             val updatedTeams = currentState.teams.map {
                 if (it.name == team.name) updatedTeam else it
             }
             currentState.copy(teams = updatedTeams)
         }
-
-        incrementNextPlayerIndex(teamId)
-        incrementNextTeamIndex()
     }
 
-    private fun setWinner(teamId: Team) {
-        val team = _uiState.value.teams.find { it.id == teamId.id } ?: return
+    private fun setWinner(teamId: String) {
+        val team = _uiState.value.teams.find { it.id == teamId } ?: return
 
         _uiState.update { currentState ->
             currentState.copy(
                 winner = team,
             )
+        }
+    }
+
+    private fun fail(teamId: String) {
+        val team = _uiState.value.teams.find { it.id == teamId } ?: return
+
+        // 連続失敗回数をインクリメント
+        _uiState.update { currentState ->
+            val lastScore = team.scores.lastOrNull() ?: 0
+            val updatedTeam = team.copy(
+                scores = team.scores + lastScore,
+                consecutiveFailure = team.consecutiveFailure + 1,
+                isDisqualified = team.consecutiveFailure + 1 >= MAX_CONSECUTIVE_FAILURE,
+            )
+
+            val updatedTeams = currentState.teams.map {
+                if (it.name == team.name) updatedTeam else it
+            }
+            currentState.copy(teams = updatedTeams)
         }
     }
 
@@ -101,7 +140,10 @@ class GameViewModel : ViewModel() {
 
     private fun incrementNextTeamIndex() {
         _uiState.update { currentState ->
-            val updatedNextTeamIndex = (currentState.nextTeamIndex + 1) % currentState.teams.size
+            var updatedNextTeamIndex = (currentState.nextTeamIndex + 1) % currentState.teams.size
+            while (currentState.teams[updatedNextTeamIndex].isDisqualified) {
+                updatedNextTeamIndex = (updatedNextTeamIndex + 1) % currentState.teams.size
+            }
             currentState.copy(nextTeamIndex = updatedNextTeamIndex)
         }
 

@@ -14,6 +14,8 @@ data class Team(
     val members: List<Member>,
     val nextPlayerIndex: Int = 0,
     val scores: List<Int> = emptyList<Int>(),
+    val consecutiveFailure: Int = 0,
+    val isDisqualified: Boolean = false,
 )
 
 data class GameUiState(
