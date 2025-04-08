@@ -125,6 +125,7 @@ fun ScoreBoardApp(
                 TeamScreen(
                     teams = uiState.teams,
                     onTeamNameEntered = { teamName -> viewModel.addTeam(teamName) },
+                    onTeamDeleted = { teamId -> viewModel.deleteTeam(teamId) },
                     onNextButtonClicked = {
                         navController.navigate(ScoreBoardScreen.Member.name)
                     },

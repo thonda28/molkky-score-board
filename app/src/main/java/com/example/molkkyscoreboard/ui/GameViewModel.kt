@@ -32,6 +32,13 @@ class GameViewModel : ViewModel() {
         }
     }
 
+    fun deleteTeam(teamId: String) {
+        _uiState.update { currentState ->
+            val updatedTeams = currentState.teams.filterNot { it.id == teamId }
+            currentState.copy(teams = updatedTeams)
+        }
+    }
+
     fun addMemberToTeam(teamId: String, memberName: String) {
         val team = _uiState.value.teams.find { it.id == teamId } ?: return
 
@@ -45,7 +52,6 @@ class GameViewModel : ViewModel() {
             currentState.copy(teams = updatedTeams)
         }
     }
-
 
     fun addScoreToTeam(teamId: String, score: Int) {
         if (score > 0) {
