@@ -80,17 +80,19 @@ fun BoardScreen(
             ScoreBoard(uiState)
             Spacer(modifier = Modifier.height(dimensionResource(R.dimen.padding_small)))
         }
-        Column(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(dimensionResource(id = R.dimen.padding_medium)),
-        ) {
-            ResultButton(
-                winner = uiState.winner,
-                labelResourceId = R.string.result,
-                onClick = { onNextButtonClicked(0) },
+
+        if (uiState.winner != null) {
+            Column(
                 modifier = Modifier.fillMaxWidth(),
-            )
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.spacedBy(dimensionResource(id = R.dimen.padding_medium)),
+            ) {
+                ResultButton(
+                    labelResourceId = R.string.result,
+                    onClick = { onNextButtonClicked(0) },
+                    modifier = Modifier.fillMaxWidth(),
+                )
+            }
         }
     }
 }
@@ -118,7 +120,8 @@ fun ScoreBoard(uiState: GameUiState) {
         // 各チームの行
         uiState.teams.forEach { team ->
             Row {
-                Text(team.name,
+                Text(
+                    team.name,
                     modifier = Modifier
                         .weight(1f)
                         .background(color = selectColor(team.consecutiveFailure))
@@ -155,14 +158,12 @@ private fun selectColor(consecutiveFailure: Int): Color {
 
 @Composable
 fun ResultButton(
-    winner: Team?,
     @StringRes labelResourceId: Int,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     Button(
         onClick = onClick,
-        enabled = winner != null,
         modifier = modifier.widthIn(min = 250.dp),
     ) {
         Text(stringResource(labelResourceId))
