@@ -40,7 +40,7 @@ class GameViewModel : ViewModel() {
                 members = team.members + Member(name = memberName)
             )
             val updatedTeams = currentState.teams.map {
-                if (it.name == team.name) updatedTeam else it
+                if (it.id == teamId) updatedTeam else it
             }
             currentState.copy(teams = updatedTeams)
         }
@@ -93,7 +93,7 @@ class GameViewModel : ViewModel() {
             }
 
             val updatedTeams = currentState.teams.map {
-                if (it.name == team.name) updatedTeam else it
+                if (it.id == teamId) updatedTeam else it
             }
             currentState.copy(teams = updatedTeams)
         }
@@ -122,7 +122,7 @@ class GameViewModel : ViewModel() {
             )
 
             val updatedTeams = currentState.teams.map {
-                if (it.name == team.name) updatedTeam else it
+                if (it.id == teamId) updatedTeam else it
             }
             currentState.copy(teams = updatedTeams)
         }
@@ -136,7 +136,7 @@ class GameViewModel : ViewModel() {
                 nextPlayerIndex = (team.nextPlayerIndex + 1) % team.members.size
             )
             val updatedTeams = currentState.teams.map {
-                if (it.name == team.name) updatedTeam else it
+                if (it.id == teamId) updatedTeam else it
             }
             currentState.copy(teams = updatedTeams)
         }
