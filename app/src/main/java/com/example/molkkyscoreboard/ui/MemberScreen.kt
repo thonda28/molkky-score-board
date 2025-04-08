@@ -4,12 +4,17 @@ import androidx.annotation.StringRes
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.Button
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
@@ -37,6 +42,7 @@ const val MAX_MEMBER_COUNT = 6
 fun MemberScreen(
     teams: List<Team>,
     onMemberNameEntered: (String, String) -> Unit,
+    onMemberDeleted: (String, String) -> Unit,
     onNextButtonClicked: (Int) -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -65,7 +71,18 @@ fun MemberScreen(
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
                     Text(team.name, style = MaterialTheme.typography.bodyLarge)
                     team.members.forEach { member ->
-                        Text(member.name, style = MaterialTheme.typography.bodyMedium)
+                        Row(
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically,
+                        ) {
+                            Text(member.name, style = MaterialTheme.typography.bodyMedium)
+                            IconButton(onClick = { onMemberDeleted(team.id, member.id) }) {
+                                Icon(
+                                    imageVector = Icons.Default.Delete,
+                                    contentDescription = stringResource(R.string.delete_member)
+                                )
+                            }
+                        }
                     }
                     MemberForm(
                         team = team,
@@ -160,6 +177,7 @@ fun MemberPreview() {
                 Team(name = "Team C", members = listOf(Member(name = "Player C"))),
             ),
             onMemberNameEntered = { _, _ -> },
+            onMemberDeleted = { _, _ -> },
             onNextButtonClicked = {},
             modifier = Modifier.fillMaxWidth(),
         )

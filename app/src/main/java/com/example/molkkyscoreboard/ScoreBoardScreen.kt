@@ -146,6 +146,12 @@ fun ScoreBoardApp(
                             memberName,
                         )
                     },
+                    onMemberDeleted = { teamId, memberId ->
+                        viewModel.deleteMemberFromTeam(
+                            teamId,
+                            memberId,
+                        )
+                    },
                     onNextButtonClicked = {
                         navController.navigate(ScoreBoardScreen.Board.name)
                     },

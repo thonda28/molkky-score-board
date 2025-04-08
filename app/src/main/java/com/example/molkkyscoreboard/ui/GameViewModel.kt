@@ -53,6 +53,20 @@ class GameViewModel : ViewModel() {
         }
     }
 
+    fun deleteMemberFromTeam(teamId: String, memberId: String) {
+        val team = _uiState.value.teams.find { it.id == teamId } ?: return
+
+        _uiState.update { currentState ->
+            val updatedTeam = team.copy(
+                members = team.members.filterNot { it.id == memberId }
+            )
+            val updatedTeams = currentState.teams.map {
+                if (it.id == teamId) updatedTeam else it
+            }
+            currentState.copy(teams = updatedTeams)
+        }
+    }
+
     fun addScoreToTeam(teamId: String, score: Int) {
         if (score > 0) {
             succeed(teamId, score)
