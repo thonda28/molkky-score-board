@@ -180,7 +180,9 @@ fun ScoreBoardApp(
                 ResultScreen(
                     winner = uiState.winner,
                     onNextButtonClicked = {
-                        navController.navigate(ScoreBoardScreen.Start.name)
+                        navController.navigate(ScoreBoardScreen.Start.name) {
+                            popUpTo(0) { inclusive = true }
+                        }
                     },
                     modifier =
                         Modifier
